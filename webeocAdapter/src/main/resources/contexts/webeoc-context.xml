@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2..xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+">
+    <!-- <context:annotation-config /> -->
+
+    <bean id="webEOCAdapter" class="com.saic.uicds.clients.em.webeocAdapter.WebEOCAdapter">
+        <property name="uicdsCore" ref="uicdsCore" />
+        <property name="webEOCEventProducer" ref="webEOCEventProducer"/>
+        <property name="sleepDurationInSeconds" value="2"/>
+    </bean>
+
+    <bean id="springWebServiceClient" class="com.saic.uicds.clients.util.SpringClient">
+         <property name="webServiceTemplate" ref="webServiceTemplate"/> 
+    </bean>
+    
+    <bean id="uicdsResourceProfile" class="com.saic.uicds.clients.em.async.UicdsResourceProfile">
+         <property name="webServiceClient" ref="springWebServiceClient"/> 
+    </bean>
+    
+    <bean id="uicdsCore" class="com.saic.uicds.clients.em.async.UicdsCoreImpl">
+         <property name="webServiceClient" ref="springWebServiceClient"/> 
+         <property name="applicationID" value="webeoc"/>
+         <property name="applicationProfileID" value="webeocProfile"/>
+         <property name="applicationProfileInterests">
+           <set>
+               <value>Incident</value>
+               <value>Alert</value>
+           </set>
+         </property>
+    </bean>
+
+    <bean id="webEOCEventProducer" class="com.saic.uicds.clients.em.webeocAdapter.WebEOCEventProducer"> 
+        <property name="webEocClient" ref="webEOCWebServiceClient" />    
+    </bean>
+
+<!--08/10/2012 UICDSIncidentBoard related -->
+  
+    <bean id="uicdsIncidentsBoard" class="com.saic.uicds.clients.em.webeocAdapter.UICDSIncidentsBoard">
+          <property name="incidentName" value="Test Incident"/>
+          <property name="boardName" value="UICDS Incidents" />
+          <property name="inputViewName" value="Other Events" />
+          <property name="viewName" value="Full Display" />
+      </bean>
+  
+  <!-- uicds core to webeoc site -->
+      <bean id="incidentToUicdsIncidents" class="com.saic.uicds.clients.em.webeocAdapter.IncidentToUICDSIncidents" init-method="initialize">
+          <property name="uicdsCore" ref="uicdsCore" />
+          <property name="webEocClient" ref="webEOCWebServiceClient" />
+          <property name="uicdsIncidentsBoard" ref="uicdsIncidentsBoard"/>
+      </bean>
+    
+      <!-- webeoc site to uicds core -->
+      <bean id="uicdsIncidentsBoardToIncident" class="com.saic.uicds.clients.em.webeocAdapter.UICDSIncidentsBoardToIncident" init-method="initialize">
+          <property name="uicdsCore" ref="uicdsCore" />
+          <property name="id" value="IncidentsEvent1" />
+          <property name="webEOCEventProducer" ref="webEOCEventProducer" />
+          <property name="uicdsIncidentsBoard" ref="uicdsIncidentsBoard"/>
+    </bean>
+ 
+
+  
+    <!--          -->
+    <!-- XMLBEANS -->
+    <!--          -->
+    <bean id="xmlbeansMarshaller" class="org.springframework.oxm.xmlbeans.XmlBeansMarshaller" />
+    <bean class="org.springframework.ws.server.endpoint.adapter.GenericMarshallingMethodEndpointAdapter">
+        <property name="marshaller" ref="xmlbeansMarshaller" />
+        <property name="unmarshaller" ref="xmlbeansMarshaller" />
+    </bean>
+
+    <bean id="webEOCWebServiceClient"
+        class="com.saic.uicds.clients.em.webeocAdapter.WebEOCWebServiceClientImpl">
+        <property name="webServiceTemplate" ref="webEOCWebServiceTemplate"></property>
+        <property name="webEOCWebServiceClientConfig" ref="webEOCWebServiceClientConfig"></property>
+    </bean>
+
+    
+     <bean id="webEOCWebServiceClientConfig" class="com.saic.uicds.clients.em.webeocAdapter.WebEOCWebServiceClientConfig">        
+        <property name="protocol" value="http://" />
+        <property name="hostURL" value="weboecsite/api.aspx" />
+        <property name="user" value="webeocuser1" />
+        <property name="password" value="webeocuser1pwd" />
+        <property name="position" value="Adapter" />
+        <property name="incident" value="Test Incident" /> 
+    </bean>
+
+    <bean id="messageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory" />
+
+
+    <!-- WebServiceTemplate for the UICDS Core -->   
+    <bean id="webServiceTemplate" class="org.springframework.ws.client.core.WebServiceTemplate">
+        <constructor-arg ref="messageFactory" />
+        <property name="marshaller" ref="xmlbeansMarshaller" />
+        <property name="unmarshaller" ref="xmlbeansMarshaller" />
+	<property name="defaultUri" value="http://localhost/uicds/core/ws/services"/>  
+        <property name="messageSender">
+            <bean class="org.springframework.ws.transport.http.CommonsHttpMessageSender">
+                <property name="credentials">
+                    <bean class="org.apache.commons.httpclient.UsernamePasswordCredentials">
+                        <constructor-arg value="xchangecoreuser" />
+                        <constructor-arg value="xchangecoreuserpwd" />
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    
+
+    <!-- WebServiceTemplate for WebEOC -->
+    <bean id="webEOCWebServiceTemplate" class="org.springframework.ws.client.core.WebServiceTemplate">
+        <constructor-arg ref="messageFactory" />
+        <property name="marshaller" ref="xmlbeansMarshaller" />
+        <property name="unmarshaller" ref="xmlbeansMarshaller" />
+        <property name="defaultUri" value="http://webeocsite/api.asmx" />
+        <property name="messageSender">
+            <bean
+                class="org.springframework.ws.transport.http.CommonsHttpMessageSender">
+            </bean>
+        </property>
+    </bean>
+
+</beans>

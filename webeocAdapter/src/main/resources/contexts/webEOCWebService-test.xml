@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2..xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+">
+	<!-- <context:annotation-config /> -->
+
+	<!-- -->
+	<!-- XMLBEANS -->
+	<!-- -->
+	<bean id="xmlbeansMarshaller" class="org.springframework.oxm.xmlbeans.XmlBeansMarshaller" />
+	<bean
+		class="org.springframework.ws.server.endpoint.adapter.GenericMarshallingMethodEndpointAdapter">
+		<property name="marshaller" ref="xmlbeansMarshaller" />
+		<property name="unmarshaller" ref="xmlbeansMarshaller" />
+	</bean>
+
+	<bean id="webEOCWebServiceClient"
+		class="com.saic.uicds.clients.em.webeocAdapter.WebEOCWebServiceClientImpl">
+		<property name="webServiceTemplate" ref="webEOCWebServiceTemplate"></property>
+		<property name="webEOCWebServiceClientConfig" ref="webEOCWebServiceClientConfig"></property>
+	</bean>
+
+    <bean id="webEOCWebServiceClientConfig" class="com.saic.uicds.clients.em.webeocAdapter.WebEOCWebServiceClientConfig">
+        <property name="protocol" value="http://" />
+        <property name="hostURL" value="demo.esi911.com/eoc7/api.asmx" />
+        <property name="user" value="uicds" />
+        <property name="password" value="123456" />
+        <property name="position" value="UICDS Adapter" />       
+    </bean>
+    
+	<bean id="messageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory" />
+
+	<bean id="webEOCWebServiceTemplate" class="org.springframework.ws.client.core.WebServiceTemplate">
+		<constructor-arg ref="messageFactory" />
+		<property name="marshaller" ref="xmlbeansMarshaller" />
+		<property name="unmarshaller" ref="xmlbeansMarshaller" />
+		<property name="defaultUri" value="http://demo.esi911.com/eoc7/api.asmx" />
+		<property name="messageSender">
+			<bean
+				class="org.springframework.ws.transport.http.CommonsHttpMessageSender">
+			</bean>
+		</property>
+	</bean>
+
+</beans>
