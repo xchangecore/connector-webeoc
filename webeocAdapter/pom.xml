@@ -1,12 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--
     <parent>
         <artifactId>com.saic.uicds.clients.em</artifactId>
         <groupId>com.saic.uicds.clients.em</groupId>
         <version>1.0</version>
     </parent>
+-->
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.saic.uicds.clients.em</groupId>
     <artifactId>com.saic.uicds.clients.em.webeocAdapter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -94,12 +97,14 @@
     </properties>
 
     <dependencies>
+<!--
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
+-->
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>

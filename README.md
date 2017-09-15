@@ -7,9 +7,11 @@ Two boards are included in this package.  Incident Board and Position Log Board
 Dependencies:
 1. connector-base-util
 2. connector-base-async
+3. Set an environment variable called MAVEN_OPTS to -Xss4m.
 
 To Build:
 1. Build the dependencies.
+2. run the install-webeoc-xmlbeans.sh(bat)
 2. Run "mvn clean install" to build the webEOCAdapter.
 
 To Run:
